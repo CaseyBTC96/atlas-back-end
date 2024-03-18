@@ -7,7 +7,7 @@
 import requests
 import sys
 
-base_url = 'https://jsonplaceholder.typicode.com/'
+base_url = 'https://jsonplaceholder.typicode.com/todos/1'
 
 
 def do_request():
@@ -27,7 +27,7 @@ def do_request():
         return print('Error: status_code:', response.status_code)
     user = response.json()
 
-    response = requests.get(base_url + 'todos/')
+    response = requests.get(base_url + 'todos/1')
     if response.status_code != 200:
         return print('Error: status_code:', response.status_code)
     todos = response.json()
