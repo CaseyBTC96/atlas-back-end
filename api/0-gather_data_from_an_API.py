@@ -1,29 +1,47 @@
 #!/usr/bin/python3
-
-"""Python script w/ an API that, for a given employee ID,
-    returns information about his/her TODO list progress"""
-
-import json
+"""
+Retrieves employee data from a REST API and
+displays info on TODO list progress.
+"""
 import requests
 import sys
 
 
+def get_employee_list(id):
+    name_url = f"https://jsonplaceholder.typicode.com/users/{id}"
+    todo_url = f"https://jsonplaceholder.typicode.com/users/{id}/todos"
+
+    response_name = requests.get(name_url)
+    response_todo = requests.get(todo_url)
+
+    if response_name.status_code == 200 and response_todo.status_code == 200:
+        employee_data = response_name.json()
+        todos = response_todo.json()
+
+        employee_name = employee_data['name']
+        total_tasks = len(todos)
+        completed_tasks = [
+            todo['title']
+            for todo in todos
+            if todo['completed']
+        ]
+
+        print(f"Employee {employee_name} is done with tasks"
+              f"({len(completed_tasks)}/{total_tasks}):")
+        print(f"EMPLOYEE_NAME:{employee_name}")
+        print(f"NUMBER_OF_DONE_TASKS:{len(completed_tasks)}")
+        print(f"TOTAL_NUMBER_OF_TASKS:{total_tasks}")
+        print("Completed Task Titles:")
+        for title in completed_tasks:
+            print(f"\t{title}")
+    else:
+        print("Failed to retrieve data.")
+
+
 if __name__ == "__main__":
-    APIURL = "https://jsonplaceholder.typicode.com/"
-    EmployeeName = requests.get(APIURL + '/users/{}'.format(sys.argv[1]))
-    EmployeeJD = EmployeeName.json()
-    ToDo_jd = requests.get(APIURL + "/users/{}".format(sys.argv[1]) + "/todos")
-    ToDos = ToDo_jd.json()
-    completed = 0
-    TotalToDos = 0
-    for ToDo in ToDos:
-        TotalToDos = TotalToDos + 1
-        if ToDo["completed"] is True:
-            completed = completed + 1
+    if len(sys.argv) != 2:
+        print("Usage: 0-gather_data_from_an_API.py <id>")
+        sys.exit(1)
 
-    print("Employee {0} is done with tasks({1}/{2}):".format(
-        EmployeeJD["name"], completed, TotalToDos))
-
-    for ToDo in ToDos:
-        if ToDo["completed"] is True:
-            print("\t {}".format(ToDo["title"]))
+    id = sys.argv[1]
+    get_employee_list(id)
