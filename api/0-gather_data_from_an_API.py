@@ -1,33 +1,29 @@
 #!/usr/bin/python3
-"""
-place holder
-"""
+
+"""Python script w/ an API that, for a given employee ID,
+    returns information about his/her TODO list progress"""
+
+import json
+import requests
+import sys
 
 
 if __name__ == "__main__":
+    APIURL = "https://jsonplaceholder.typicode.com/"
+    EmployeeName = requests.get(APIURL + '/users/{}'.format(sys.argv[1]))
+    EmployeeJD = EmployeeName.json()
+    ToDo_jd = requests.get(APIURL + "/users/{}".format(sys.argv[1]) + "/todos")
+    ToDos = ToDo_jd.json()
+    completed = 0
+    TotalToDos = 0
+    for ToDo in ToDos:
+        TotalToDos = TotalToDos + 1
+        if ToDo["completed"] is True:
+            completed = completed + 1
 
-    import requests
-    from sys import argv
-    if len(argv) < 2:
-        exit()
-    todos = requests.get(
-        "https://jsonplaceholder.typicode.com/todos/1"
-        .format(argv[1]))
-    name = requests.get(
-        "https://jsonplaceholder.typicode.com/users?id={}"
-        .format(argv[1]))
-    name = name.json()
-    name = name[0]["name"]
-    todo = requests.get(
-        "https://jsonplaceholder.typicode.com/todos?userId={}".format(argv[1]))
-    todo = todo.json()
-    todo = len(todo)
-    todos = todos.json()
-    todo_list = []
+    print("Employee {0} is done with tasks({1}/{2}):".format(
+        EmployeeJD["name"], completed, TotalToDos))
 
-    for x in todos:
-        todo_list.append("\t {}".format(x["title"]))
-    print("Employee {} is done with tasks({}/{}):"
-          .format(name, len(todos), todo))
-    for y in todo_list:
-        print(y)
+    for ToDo in ToDos:
+        if ToDo["completed"] is True:
+            print("\t {}".format(ToDo["title"]))
